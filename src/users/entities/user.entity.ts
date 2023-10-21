@@ -25,7 +25,7 @@ export class UsersEntity extends BaseEntity implements IUser {
   password: string;
 
   @Column({ type: 'enum', enum: ROLES })
-  role: string;
+  role: ROLES;
 
   @OneToMany(() => UsersProjectsEntity, (usersProjects) => usersProjects.user)
   projectsIncludes: UsersProjectsEntity[];
