@@ -5,6 +5,7 @@ import { UserDTO, UserToProjectDTO, UserUpdateDTO } from '../dto/user.dto';
 import { UsersEntity } from '../entities/user.entity';
 import { ErrorManager } from 'src/utils/error.manager';
 import { UsersProjectsEntity } from '../entities/usersProjects.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,8 @@ export class UsersService {
 
   public async createUser(body: UserDTO): Promise<UsersEntity> {
     try {
+      body.password = await bcrypt.hash(body.password, +process.env.HASH_SALT);
+
       const user: UsersEntity = await this.userRepository.save(body);
       if (!user) {
         throw new ErrorManager({
@@ -71,6 +74,20 @@ export class UsersService {
   public async relationToProject(body: UserToProjectDTO) {
     try {
       return await this.userProjectRepository.save(body);
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error.message);
+    }
+  }
+
+  public async findBy({ key, value }: { key: keyof UserDTO; value: any }) {
+    try {
+      const user: UsersEntity = await this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where({ [key]: value })
+        .getOne();
+
+      return user;
     } catch (error) {
       throw ErrorManager.createSignatureError(error.message);
     }
