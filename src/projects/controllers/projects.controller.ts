@@ -16,6 +16,9 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AccessLevelGuard } from 'src/auth/guards/access-level.guard';
 import { AccessLevel } from 'src/auth/decorators/access-level.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { ApiHeader, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Projects')
 @Controller('projects')
 @UseGuards(AuthGuard, RolesGuard, AccessLevelGuard)
 export class ProjectsController {
@@ -30,6 +33,9 @@ export class ProjectsController {
     return await this.projectService.createProject(body, userId);
   }
 
+  @ApiHeader({
+    name: 'codrr_token',
+  })
   @Get('all')
   public async findAllProjects() {
     return await this.projectService.findProjects();
